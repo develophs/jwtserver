@@ -19,10 +19,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
+		//기존 세션방식을 사용하지 않겠다. 무상태유지. stateless
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 		.and()
+		//Config클래스에서 설정한 내용을 필터로 등록한다.
 		.addFilter(corsFilter)
+		//기존 html에서 <form>태그를 이용한 로그인을 하지 않겠다.
 		.formLogin().disable()
+		//httpBasic을 사용하지 않고, Bearer방식을 사용한다.
 		.httpBasic().disable()
 		.authorizeRequests()
 		.antMatchers("/api/v1/user/**")
