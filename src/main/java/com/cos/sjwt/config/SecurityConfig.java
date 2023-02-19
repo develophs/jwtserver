@@ -9,6 +9,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
 
+import com.cos.sjwt.config.jwt.JwtAuthenticationFilter;
 import com.cos.sjwt.filter.MyFilter1;
 import com.cos.sjwt.filter.MyFilter3;
 
@@ -35,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		.formLogin().disable()
 		//httpBasic을 사용하지 않고, Bearer방식을 사용한다.
 		.httpBasic().disable()
+		.addFilter(new JwtAuthenticationFilter(authenticationManager())) //AuthenticationManager를 파라미터로 보내야한다.
 		.authorizeRequests()
 		.antMatchers("/api/v1/user/**")
 		.access("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
@@ -43,6 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		.antMatchers("/api/v1/admin/**")
 		.access("hasRole('ROLE_ADMIN')")
 		.anyRequest().permitAll();
+		
 	}
 	
 }
