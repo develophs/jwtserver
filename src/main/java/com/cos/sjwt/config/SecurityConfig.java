@@ -6,9 +6,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
 
 import com.cos.sjwt.filter.MyFilter1;
+import com.cos.sjwt.filter.MyFilter3;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +23,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		//시큐리티 필터가 동작하기전에 JWT필터를 먼저 실행시킨다.
+		http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class);
 		http.csrf().disable();
 		//기존 세션방식을 사용하지 않겠다. 무상태유지. stateless
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
