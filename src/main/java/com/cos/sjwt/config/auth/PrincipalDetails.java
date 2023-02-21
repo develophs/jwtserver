@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.cos.sjwt.model.User;
 
+import lombok.Getter;
+
+@Getter
 public class PrincipalDetails implements UserDetails{
 
 	private final User user;
@@ -54,5 +57,7 @@ public class PrincipalDetails implements UserDetails{
 	public boolean isEnabled() {
 		return true;
 	}
+	
+	
 	
 }
