@@ -13,7 +13,6 @@ import org.springframework.web.filter.CorsFilter;
 
 import com.cos.sjwt.config.jwt.JwtAuthenticationFilter;
 import com.cos.sjwt.config.jwt.JwtAuthorizationFilter;
-import com.cos.sjwt.filter.MyFilter1;
 import com.cos.sjwt.filter.MyFilter3;
 import com.cos.sjwt.repository.UserRepository;
 

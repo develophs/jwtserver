@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 // 스프링 시큐리티에 UsernamePasswordAuthenticationFilter가 존재한다.
@@ -32,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 // but, formLogin.disable해서 작동을 안한다.
 
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 
 	private final AuthenticationManager authenticationManager;
@@ -40,13 +42,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		System.out.println("JwtAuthenticationFilter : 로그인 시도중");
-		
 		// 1. username, password 받아서
 			try {
 				ObjectMapper om = new ObjectMapper();
 				User user = om.readValue(request.getInputStream(),User.class);
-				System.out.println(user);
 				
 				UsernamePasswordAuthenticationToken authenticationToken =
 						new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword());
@@ -59,12 +58,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				PrincipalDetails principalDetails = (PrincipalDetails)authentication.getPrincipal();
 				
 				//값이 존재하면 로그인이 정상적으로 됐다.
-				System.out.println("로그인 완료됨 : " + principalDetails.getUser().getUsername()); 
+				log.info("username = {} 로그인", principalDetails.getUser().getUsername());
 				
 				//리턴 후 authentication 객체가 session영역에 저장된다.
 				//리턴의 이유는 권한 관리를 security가 대신 해주기 때문에 편하려고
 				//굳이 JWT 토큰을 사용하면서 세션을 만들 이유가 없다.
 				//권한 처리때문에 session에 넣어준다.
+				
 				return authentication;
 			} catch (StreamReadException e) {
 				e.printStackTrace();
@@ -91,8 +91,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
-		System.out.println("successfulAuthentication 실행됨 : 인증이 완료되었다는 뜻.");
-		
 		PrincipalDetails principalDetails = (PrincipalDetails)authResult.getPrincipal();
 		
 		//RSA방식이 아니라 Hash암호방식
@@ -102,7 +100,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				.withClaim("id",principalDetails.getUser().getId())
 				.withClaim("username", principalDetails.getUser().getUsername())
 				.sign(Algorithm.HMAC512(JwtProperties.SECRET));
-		System.out.println(jwtToken);
+		
+		log.info("jwtToken = {}", jwtToken);
+		
 		response.addHeader("Authorization", "Bearer " + jwtToken);
 		//생성한 토큰이 유효한지 판단하는 필터를 생성해야한다.
 	}
